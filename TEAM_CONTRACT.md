@@ -1,4 +1,4 @@
-**# Team Contract — Capstone Project**
+# Team Contract — Capstone Project**
 
 
 
