@@ -216,3 +216,23 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+frontend/node_modules/
+.next/
+frontend/.next/
+.env
+__pycache__/
+node_modules/
+frontend/node_modules/
+.next/
+frontend/.next/
+.env
+__pycache__/
+*.pyc
+node_modules/
+frontend/node_modules/
+.next/
+frontend/.next/
+.env
+.venv/
+__pycache__/
+*.pyc

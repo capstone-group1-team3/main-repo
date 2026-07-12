@@ -1,0 +1,26 @@
+{
+  "title": "FusionMind Operations",
+  "uid": "fusionmind-ops",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "15s",
+  "time": {"from": "now-1h", "to": "now"},
+  "panels": [
+    {"type":"timeseries","title":"Request rate","gridPos":{"x":0,"y":0,"w":8,"h":7},"targets":[{"expr":"sum(rate(fusionmind_http_requests_total[5m]))","legendFormat":"requests/s"}]},
+    {"type":"timeseries","title":"4xx and 5xx rate","gridPos":{"x":8,"y":0,"w":8,"h":7},"targets":[{"expr":"sum by (status_class) (rate(fusionmind_http_requests_total{status_class=~\"4xx|5xx\"}[5m]))","legendFormat":"{{status_class}}"}]},
+    {"type":"timeseries","title":"HTTP p50 / p95","gridPos":{"x":16,"y":0,"w":8,"h":7},"targets":[{"expr":"histogram_quantile(0.50, sum by (le) (rate(fusionmind_http_request_duration_seconds_bucket[5m])))","legendFormat":"p50"},{"expr":"histogram_quantile(0.95, sum by (le) (rate(fusionmind_http_request_duration_seconds_bucket[5m])))","legendFormat":"p95"}]},
+    {"type":"timeseries","title":"Chat p95","gridPos":{"x":0,"y":7,"w":8,"h":7},"targets":[{"expr":"histogram_quantile(0.95, sum by (le) (rate(fusionmind_http_request_duration_seconds_bucket{route=~\"/chat/?\"}[5m])))","legendFormat":"chat p95"}]},
+    {"type":"timeseries","title":"Tool failures","gridPos":{"x":8,"y":7,"w":8,"h":7},"targets":[{"expr":"sum by (tool) (rate(fusionmind_tool_calls_total{outcome=\"failure\"}[5m]))","legendFormat":"{{tool}}"}]},
+    {"type":"timeseries","title":"RAG latency and empty evidence","gridPos":{"x":16,"y":7,"w":8,"h":7},"targets":[{"expr":"histogram_quantile(0.95, sum by (le) (rate(fusionmind_rag_retrieval_duration_seconds_bucket[5m])))","legendFormat":"RAG p95"},{"expr":"sum(rate(fusionmind_rag_empty_evidence_total[5m]))","legendFormat":"empty/s"}]},
+    {"type":"timeseries","title":"Neo4j failures","gridPos":{"x":0,"y":14,"w":8,"h":7},"targets":[{"expr":"sum by (operation,error_category) (rate(fusionmind_neo4j_failures_total[5m]))","legendFormat":"{{operation}} {{error_category}}"}]},
+    {"type":"timeseries","title":"Orchestrator outcomes","gridPos":{"x":8,"y":14,"w":8,"h":7},"targets":[{"expr":"sum by (outcome) (rate(fusionmind_orchestrator_completions_total[5m]))","legendFormat":"{{outcome}}"}]},
+    {"type":"timeseries","title":"Action outcomes","gridPos":{"x":16,"y":14,"w":8,"h":7},"targets":[{"expr":"sum by (action,outcome) (rate(fusionmind_action_results_total[5m]))","legendFormat":"{{action}} {{outcome}}"}]},
+    {"type":"timeseries","title":"In-flight requests","gridPos":{"x":0,"y":21,"w":6,"h":7},"targets":[{"expr":"fusionmind_http_inflight_requests","legendFormat":"in-flight"}]},
+    {"type":"timeseries","title":"Intent counts","gridPos":{"x":6,"y":21,"w":6,"h":7},"targets":[{"expr":"sum by (intent) (rate(fusionmind_intent_detections_total[5m]))","legendFormat":"{{intent}}"}]},
+    {"type":"timeseries","title":"Tool calls","gridPos":{"x":12,"y":21,"w":6,"h":7},"targets":[{"expr":"sum by (tool,outcome) (rate(fusionmind_tool_calls_total[5m]))","legendFormat":"{{tool}} {{outcome}}"}]},
+    {"type":"timeseries","title":"Orchestrator iterations","gridPos":{"x":18,"y":21,"w":6,"h":7},"targets":[{"expr":"histogram_quantile(0.95, sum by (le) (rate(fusionmind_orchestrator_iterations_bucket[5m])))","legendFormat":"iterations p95"}]},
+    {"type":"timeseries","title":"Neo4j query p95","gridPos":{"x":0,"y":28,"w":8,"h":7},"targets":[{"expr":"histogram_quantile(0.95, sum by (le,operation) (rate(fusionmind_neo4j_query_duration_seconds_bucket[5m])))","legendFormat":"{{operation}} p95"}]},
+    {"type":"timeseries","title":"Action duration p95","gridPos":{"x":8,"y":28,"w":8,"h":7},"targets":[{"expr":"histogram_quantile(0.95, sum by (le,action) (rate(fusionmind_action_duration_seconds_bucket[5m])))","legendFormat":"{{action}} p95"}]},
+    {"type":"timeseries","title":"HTTP server errors","gridPos":{"x":16,"y":28,"w":8,"h":7},"targets":[{"expr":"sum by (error_category) (rate(fusionmind_http_errors_total[5m]))","legendFormat":"{{error_category}}"}]}
+  ]
+}
