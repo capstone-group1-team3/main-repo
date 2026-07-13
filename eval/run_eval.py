@@ -62,6 +62,10 @@ def offline_intent_entities(cases: list[EvaluationCase]) -> tuple[dict, dict, li
     expected_entities: list[dict] = []; actual_entities: list[dict] = []
     failures = []
     for case in cases:
+        # A bare confirmation reply only has meaning with persisted pending state.
+        # It is covered by contextual confirmation tests, not stateless scoring.
+        if case.metadata.get("requires_prior_confirmation"):
+            continue
         intent = detect_intent(case.message, use_llm_fallback=False)["intent"]
         entities = extract_entities(case.message, intent=intent)
         gold.append(case.expected_intent); predicted.append(intent)
@@ -113,6 +117,15 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "RAG retrieval and grounding: evaluation metadata/live token not configured.",
         "Actions, privacy, confirmation, and E2E writes: isolated records not configured.",
     ]
+    contextual_cases = [
+        case.id for case in cases
+        if case.metadata.get("requires_prior_confirmation")
+    ]
+    if contextual_cases:
+        skipped.append(
+            "Context-dependent confirmation fixtures excluded from stateless intent "
+            f"scoring: {', '.join(contextual_cases)}."
+        )
     if args.graph_read_only:
         try:
             from app.graph.neo4j_client import Neo4jClient

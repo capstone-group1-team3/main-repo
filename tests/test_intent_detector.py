@@ -85,6 +85,14 @@ PRIORITY_CASES = [
         "I paid with a bank slip and haven't been charged yet.",
         "payment_issue",
     ),
+    (
+        "My order arrived damaged and I do not know whether to return it replace it or request a refund.",
+        "damaged_product",
+    ),
+    (
+        "Where is my order and can I return it if it arrives late?",
+        "order_tracking",
+    ),
 ]
 
 

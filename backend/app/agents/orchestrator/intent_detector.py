@@ -197,6 +197,25 @@ _NEGATED_REFUND = re.compile(
     re.I,
 )
 
+_INDECISION = re.compile(
+    r"(?:\bdo not know\b|\bdon'?t know\b|\bnot sure\b|\bcannot decide\b|"
+    r"\bcan'?t decide\b|\bwhether\b.{0,100}\bor\b|\bshould i\b)",
+    re.I,
+)
+
+_CONDITIONAL_RETURN = re.compile(
+    r"(?:\b(?:can|could|would) i return\b.{0,80}\b(?:if|when|in case)\b|"
+    r"\breturn\b.{0,60}\bif\b)",
+    re.I,
+)
+
+
+def _action_option_count(text: str) -> int:
+    """Count distinct actions mentioned as possible next steps."""
+    return sum(bool(pattern.search(text)) for pattern in (
+        _REPLACEMENT_ACTION, _REFUND_ACTION, _RETURN_ACTION,
+    ))
+
 _LLM_PROMPT = """\
 You are a customer-support intent classifier. Distinguish personal requests from
 questions about general policy.
@@ -267,6 +286,15 @@ def detect_intent(
     ):
         return _result("warranty_claim", 0.94, "explicit personal warranty claim", started)
 
+    # Multiple possible actions plus indecision describe the issue; they do not
+    # authorize any one action.
+    if (
+        (_DELIVERY_DAMAGE.search(text) or _GENERIC_DAMAGE.search(text))
+        and _INDECISION.search(text)
+        and _action_option_count(text) >= 2
+    ):
+        return _result("damaged_product", 0.94, "damaged item with undecided action", started)
+
     # 7. Unambiguous general policy phrasing before action keywords.
     if _CLEAR_POLICY.search(text):
         return _result("policy_question", 0.95, "clear policy question", started)
@@ -293,6 +321,10 @@ def detect_intent(
         if policy_timing and not explicit_get_refund:
             return _result("policy_question", 0.94, "refund policy question", started)
         return _result("refund_request", 0.94, "refund request", started)
+
+    # A hypothetical return condition must not override an active tracking goal.
+    if _ORDER_TRACKING.search(text) and _CONDITIONAL_RETURN.search(text):
+        return _result("order_tracking", 0.95, "tracking request with conditional return", started)
 
     if _RETURN_ACTION.search(text):
         return_policy = re.search(
