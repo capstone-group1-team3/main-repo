@@ -12,8 +12,10 @@ from app.agents.orchestrator.conversation_store import (
     InMemoryConversationStore, ConversationStateData, PendingActionContext,
     new_conversation_id,
 )
+from app.agents.orchestrator import loop_controller, orchestrator_agent
 from app.agents.action.action_evaluator import evaluate_eligibility
 from datetime import date, timedelta
+import pytest
 
 
 # ── Conversation store tests ──────────────────────────────────────────────────
@@ -88,6 +90,56 @@ def test_different_conv_ids_are_isolated():
 
 
 # ── Eligibility evaluator tests ───────────────────────────────────────────────
+
+@pytest.mark.parametrize(("reply", "confirmed"), [("yes", True), ("no", False)])
+def test_confirmation_reply_uses_persisted_cancel_context(monkeypatch, reply, confirmed):
+    """Bare yes/no replies inherit the pending action instead of being reclassified."""
+    store = InMemoryConversationStore()
+    conv_id = new_conversation_id()
+    store.save(ConversationStateData(
+        customer_id="C001",
+        conversation_id=conv_id,
+        intent="cancel_order",
+        entities={"order_id": "ORD021621"},
+        pending_action=PendingActionContext(
+            intent="cancel_order",
+            order_id="ORD021621",
+            amount=100.0,
+            order_status="processing",
+        ),
+        confirmation_required=True,
+    ))
+    observed = {}
+
+    def handle_confirmation(state):
+        observed["intent"] = state.intent
+        loop_controller._handle_confirm(state)
+        return state
+
+    monkeypatch.setattr(orchestrator_agent, "get_store", lambda: store)
+    monkeypatch.setattr(
+        orchestrator_agent,
+        "detect_intent",
+        lambda *args, **kwargs: {
+            "intent": "policy_question",
+            "confidence": 0.30,
+        },
+    )
+    monkeypatch.setattr(orchestrator_agent, "extract_entities", lambda *args, **kwargs: {})
+    monkeypatch.setattr(orchestrator_agent, "run_loop", handle_confirmation)
+
+    state = orchestrator_agent.run(
+        message=reply,
+        customer_id="C001",
+        conversation_id=conv_id,
+    )
+
+    assert observed["intent"] == "cancel_order"
+    assert state.intent == "cancel_order"
+    assert state.confirmation_received is confirmed
+    if not confirmed:
+        assert "cancelled" in (state.clarification_needed or "").lower()
+
 
 _RULES = {
     "cancellation": {"allowed_before_status": "shipped"},
