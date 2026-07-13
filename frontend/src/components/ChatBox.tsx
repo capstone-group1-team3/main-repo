@@ -4,15 +4,73 @@ import { api, HistoryMessage, ChatApiResponse } from "@/lib/api";
 import MessageBubble from "./MessageBubble";
 import { ChatMessage } from "@/lib/types";
 
+const CHAT_STORAGE_KEY = "fm_chat_state";
+const DEFAULT_MESSAGES: ChatMessage[] = [
+  { role: "assistant", content: "Hello! How can I help you today?" },
+];
+
+interface StoredChatState {
+  messages: ChatMessage[];
+  history: HistoryMessage[];
+  conversationId: string | null;
+}
+
+// localStorage is unavailable during SSR and may contain invalid JSON.
+function loadChatState(): StoredChatState | null {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const raw = window.localStorage.getItem(CHAT_STORAGE_KEY);
+    if (!raw) return null;
+
+    const stored = JSON.parse(raw) as Partial<StoredChatState>;
+    if (!Array.isArray(stored.messages) || !Array.isArray(stored.history)) {
+      return null;
+    }
+
+    return {
+      messages: stored.messages,
+      history: stored.history,
+      conversationId:
+        typeof stored.conversationId === "string" ? stored.conversationId : null,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export default function ChatBox() {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: "assistant", content: "Hello! How can I help you today?" },
-  ]);
-  const [history, setHistory]             = useState<HistoryMessage[]>([]);
-  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>(
+    () => loadChatState()?.messages ?? DEFAULT_MESSAGES
+  );
+  const [history, setHistory] = useState<HistoryMessage[]>(
+    () => loadChatState()?.history ?? []
+  );
+  const [conversationId, setConversationId] = useState<string | null>(
+    () => loadChatState()?.conversationId ?? null
+  );
   const [input, setInput]   = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef             = useRef<HTMLDivElement>(null);
+  const skipNextPersistenceRef = useRef(false);
+
+  useEffect(() => {
+    if (skipNextPersistenceRef.current) {
+      skipNextPersistenceRef.current = false;
+      return;
+    }
+    if (typeof window === "undefined") return;
+
+    try {
+      window.localStorage.setItem(
+        CHAT_STORAGE_KEY,
+        JSON.stringify({ messages, history, conversationId })
+      );
+    } catch {
+      // Storage can be blocked or full; chat should continue in memory.
+    }
+  }, [messages, history, conversationId]);
+
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -67,7 +125,16 @@ export default function ChatBox() {
   }
 
   function newConversation() {
-    setMessages([{ role: "assistant", content: "Hello! How can I help you today?" }]);
+    skipNextPersistenceRef.current = true;
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.removeItem(CHAT_STORAGE_KEY);
+      } catch {
+        // Storage access must never prevent starting a new conversation.
+      }
+    }
+
+    setMessages(DEFAULT_MESSAGES);
     setHistory([]);
     setConversationId(null);
     setInput("");

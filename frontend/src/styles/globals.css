@@ -93,3 +93,67 @@ input:focus, textarea:focus {
 .badge-approved { background: #dcfce7; color: #166534; }
 .badge-resolved { background: #f0fdf4; color: #15803d; }
 .badge-rejected { background: #fee2e2; color: #991b1b; }
+
+/* Assistant replies use Markdown; keep typography compact inside chat bubbles. */
+.assistant-markdown {
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.assistant-markdown > :first-child { margin-top: 0; }
+.assistant-markdown > :last-child { margin-bottom: 0; }
+.assistant-markdown p { margin: 0 0 0.75em; }
+.assistant-markdown h1,
+.assistant-markdown h2,
+.assistant-markdown h3,
+.assistant-markdown h4 {
+  line-height: 1.3;
+  margin: 1em 0 0.45em;
+}
+.assistant-markdown h1 { font-size: 1.35em; }
+.assistant-markdown h2 { font-size: 1.22em; }
+.assistant-markdown h3 { font-size: 1.1em; }
+.assistant-markdown ul,
+.assistant-markdown ol {
+  margin: 0.5em 0 0.8em;
+  padding-left: 1.5em;
+}
+.assistant-markdown li { margin: 0.2em 0; }
+.assistant-markdown a {
+  color: var(--accent);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.assistant-markdown code {
+  background: var(--border-soft);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.08em 0.35em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+.assistant-markdown pre {
+  margin: 0.7em 0;
+  overflow-x: auto;
+}
+.assistant-markdown pre code {
+  display: block;
+  padding: 0.75em;
+  white-space: pre;
+}
+.assistant-markdown table {
+  display: block;
+  max-width: 100%;
+  margin: 0.75em 0;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+.assistant-markdown th,
+.assistant-markdown td {
+  min-width: 7rem;
+  padding: 0.45em 0.65em;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+.assistant-markdown th { background: var(--border-soft); }

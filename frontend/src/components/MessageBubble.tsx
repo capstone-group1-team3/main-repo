@@ -1,4 +1,6 @@
 "use client";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { ChatMessage } from "@/lib/types";
 
 interface ActionCard {
@@ -81,11 +83,26 @@ export default function MessageBubble({ message }: { message: ChatMessage }) {
         border: isUser ? "none" : "1px solid var(--border)",
         fontSize: 14,
         lineHeight: 1.65,
-        whiteSpace: "pre-wrap",
+        whiteSpace: isUser ? "pre-wrap" : undefined,
         wordBreak: "break-word",
       }}>
         {/* Message text */}
-        <span>{message.content}</span>
+        {isUser ? (
+          <span>{message.content}</span>
+        ) : (
+          <div className="assistant-markdown">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                a: ({ node: _node, ...props }) => (
+                  <a {...props} target="_blank" rel="noopener noreferrer" />
+                ),
+              }}
+            >
+              {message.content}
+            </ReactMarkdown>
+          </div>
+        )}
 
         {/* Action card */}
         {message.action_card && (

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { api } from "@/lib/api";
 import ChatBox from "@/components/ChatBox";
 
@@ -25,7 +26,7 @@ export default function ChatPage() {
           <span style={{ fontWeight: 700, color: "var(--accent)", fontSize: 17 }}>AI Support</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <a href="/account" style={{ fontSize: 13, color: "var(--ink-soft)" }}>My Account</a>
+          <Link href="/account" style={{ fontSize: 13, color: "var(--ink-soft)" }}>My Account</Link>
           <span style={{ fontSize: 13, color: "var(--muted)" }}>{email}</span>
           <button className="btn-outline" onClick={logout} style={{ fontSize: 12, padding: "5px 14px" }}>Sign out</button>
         </div>
