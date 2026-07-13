@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { api } from "@/lib/api";
 import { OrderCard, TicketCard, RequestCard } from "@/components/TicketCard";
 import { Identity, Order, Ticket, ServiceRequest } from "@/lib/types";
@@ -71,9 +72,9 @@ export default function AccountPage() {
           My Account
         </span>
         <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-          <a href="/chat" style={{ fontSize: 13, color: "var(--ink-soft)" }}>
+          <Link href="/chat" style={{ fontSize: 13, color: "var(--ink-soft)" }}>
             💬 Chat
-          </a>
+          </Link>
           <button className="btn-outline" onClick={logout}
             style={{ fontSize: 12, padding: "5px 14px" }}>
             Sign out
