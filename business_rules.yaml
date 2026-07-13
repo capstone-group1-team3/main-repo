@@ -1,0 +1,43 @@
+# =============================================================================
+# business_rules.yaml  —  SINGLE SOURCE OF TRUTH for all rule numbers.
+# The Action Agent reads these values. The policy prose in /policies MUST state
+# the same numbers. Never hard-code a rule number anywhere else in the codebase.
+# =============================================================================
+
+refund:
+  window_days: 14                 # days from delivery to request a refund
+  requires_photo_proof: true      # damaged-item refunds need a photo
+  processing_days_card: 5         # business days back to a card
+  processing_days_bank_slip: 10   # offline bank payment (ex-boleto) takes longer
+  processing_days_voucher: 0       # voucher/store credit is restored immediately
+
+return:
+  window_days: 30                 # days from delivery to start a return
+  restocking_fee_pct: 0           # no restocking fee for standard returns
+  item_must_be_unused: true       # returned goods must be unused / in original packaging
+  return_shipping_paid_by:        # who pays return shipping, by reason
+    defective: company
+    wrong_item: company
+    changed_mind: customer
+
+replacement:
+  window_days: 30                 # same window as return
+  requires_defect: true           # replacements are for defective / wrong items only
+  same_item_only: true            # like-for-like swap, no upgrades
+
+warranty:
+  period_months: 12               # manufacturer warranty length
+  requires_defect: true           # covers manufacturing defects, not misuse
+  starts_from: delivery_date      # warranty clock starts at delivery
+  excludes: [accidental_damage, misuse, normal_wear]
+
+cancellation:
+  allowed_before_status: shipped  # can cancel only before the order ships
+
+payment:
+  split_payment_allowed: true     # an order may be paid with multiple methods
+  supported_methods: [credit_card, debit_card, voucher, bank_slip]
+
+statuses: [open, pending_proof, approved, resolved, rejected]
+
+service_request_types: [refund, return, replacement, warranty]
