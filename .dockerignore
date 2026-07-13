@@ -1,0 +1,12 @@
+.git
+.venv
+.test-packages
+frontend/node_modules
+frontend/.next
+data/raw
+data/processed
+data/seed
+vector_store
+eval/reports
+**/__pycache__
+**/.pytest_cache
