@@ -1,0 +1,531 @@
+{
+  "run": {
+    "run_id": "9973e8df1db74e2cb3bffd17800078ce",
+    "started_at": "2026-07-12T07:59:26.000591+00:00",
+    "fixture_count": 90
+  },
+  "environment": {
+    "base_url": "http://localhost:8000",
+    "live_token_supplied": false,
+    "write_evaluation": false
+  },
+  "status": "pass",
+  "thresholds": {
+    "data_integrity": {
+      "value": 1.0,
+      "operator": ">=",
+      "threshold": 1.0,
+      "pass": true
+    },
+    "rule_compliance": {
+      "value": 1.0,
+      "operator": ">=",
+      "threshold": 1.0,
+      "pass": true
+    },
+    "intent_macro_f1": {
+      "value": 0.9524111182934712,
+      "operator": ">=",
+      "threshold": 0.9,
+      "pass": true
+    },
+    "entity_slot_accuracy": {
+      "value": 1.0,
+      "operator": ">=",
+      "threshold": 0.85,
+      "pass": true
+    },
+    "graph_integrity": {
+      "value": 1.0,
+      "operator": ">=",
+      "threshold": 1.0,
+      "pass": true
+    }
+  },
+  "metrics": {
+    "intent": {
+      "count": 90,
+      "accuracy": 0.9555555555555556,
+      "macro_precision": 0.9671957671957673,
+      "macro_recall": 0.9457070707070707,
+      "macro_f1": 0.9524111182934712,
+      "per_label": {
+        "cancel_order": {
+          "precision": 1.0,
+          "recall": 0.8181818181818182,
+          "f1": 0.9,
+          "support": 11
+        },
+        "damaged_product": {
+          "precision": 1.0,
+          "recall": 0.75,
+          "f1": 0.8571428571428571,
+          "support": 4
+        },
+        "order_tracking": {
+          "precision": 1.0,
+          "recall": 0.8888888888888888,
+          "f1": 0.9411764705882353,
+          "support": 9
+        },
+        "payment_issue": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 5
+        },
+        "policy_question": {
+          "precision": 0.9259259259259259,
+          "recall": 1.0,
+          "f1": 0.9615384615384615,
+          "support": 25
+        },
+        "refund_request": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 11
+        },
+        "replacement_request": {
+          "precision": 0.8888888888888888,
+          "recall": 1.0,
+          "f1": 0.9411764705882353,
+          "support": 8
+        },
+        "return_request": {
+          "precision": 0.8571428571428571,
+          "recall": 1.0,
+          "f1": 0.923076923076923,
+          "support": 6
+        },
+        "ticket_status": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 4
+        },
+        "warranty_claim": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 7
+        }
+      },
+      "confusion_matrix": {
+        "cancel_order": {
+          "cancel_order": 9,
+          "damaged_product": 0,
+          "order_tracking": 0,
+          "payment_issue": 0,
+          "policy_question": 2,
+          "refund_request": 0,
+          "replacement_request": 0,
+          "return_request": 0,
+          "ticket_status": 0,
+          "warranty_claim": 0
+        },
+        "damaged_product": {
+          "cancel_order": 0,
+          "damaged_product": 3,
+          "order_tracking": 0,
+          "payment_issue": 0,
+          "policy_question": 0,
+          "refund_request": 0,
+          "replacement_request": 1,
+          "return_request": 0,
+          "ticket_status": 0,
+          "warranty_claim": 0
+        },
+        "order_tracking": {
+          "cancel_order": 0,
+          "damaged_product": 0,
+          "order_tracking": 8,
+          "payment_issue": 0,
+          "policy_question": 0,
+          "refund_request": 0,
+          "replacement_request": 0,
+          "return_request": 1,
+          "ticket_status": 0,
+          "warranty_claim": 0
+        },
+        "payment_issue": {
+          "cancel_order": 0,
+          "damaged_product": 0,
+          "order_tracking": 0,
+          "payment_issue": 5,
+          "policy_question": 0,
+          "refund_request": 0,
+          "replacement_request": 0,
+          "return_request": 0,
+          "ticket_status": 0,
+          "warranty_claim": 0
+        },
+        "policy_question": {
+          "cancel_order": 0,
+          "damaged_product": 0,
+          "order_tracking": 0,
+          "payment_issue": 0,
+          "policy_question": 25,
+          "refund_request": 0,
+          "replacement_request": 0,
+          "return_request": 0,
+          "ticket_status": 0,
+          "warranty_claim": 0
+        },
+        "refund_request": {
+          "cancel_order": 0,
+          "damaged_product": 0,
+          "order_tracking": 0,
+          "payment_issue": 0,
+          "policy_question": 0,
+          "refund_request": 11,
+          "replacement_request": 0,
+          "return_request": 0,
+          "ticket_status": 0,
+          "warranty_claim": 0
+        },
+        "replacement_request": {
+          "cancel_order": 0,
+          "damaged_product": 0,
+          "order_tracking": 0,
+          "payment_issue": 0,
+          "policy_question": 0,
+          "refund_request": 0,
+          "replacement_request": 8,
+          "return_request": 0,
+          "ticket_status": 0,
+          "warranty_claim": 0
+        },
+        "return_request": {
+          "cancel_order": 0,
+          "damaged_product": 0,
+          "order_tracking": 0,
+          "payment_issue": 0,
+          "policy_question": 0,
+          "refund_request": 0,
+          "replacement_request": 0,
+          "return_request": 6,
+          "ticket_status": 0,
+          "warranty_claim": 0
+        },
+        "ticket_status": {
+          "cancel_order": 0,
+          "damaged_product": 0,
+          "order_tracking": 0,
+          "payment_issue": 0,
+          "policy_question": 0,
+          "refund_request": 0,
+          "replacement_request": 0,
+          "return_request": 0,
+          "ticket_status": 4,
+          "warranty_claim": 0
+        },
+        "warranty_claim": {
+          "cancel_order": 0,
+          "damaged_product": 0,
+          "order_tracking": 0,
+          "payment_issue": 0,
+          "policy_question": 0,
+          "refund_request": 0,
+          "replacement_request": 0,
+          "return_request": 0,
+          "ticket_status": 0,
+          "warranty_claim": 7
+        }
+      }
+    },
+    "entities": {
+      "count": 23,
+      "exact_match": 1.0,
+      "normalized_match": 1.0,
+      "per_slot": {
+        "issue": {
+          "count": 6,
+          "exact": 1.0,
+          "normalized": 1.0
+        },
+        "order_id": {
+          "count": 8,
+          "exact": 1.0,
+          "normalized": 1.0
+        },
+        "product": {
+          "count": 3,
+          "exact": 1.0,
+          "normalized": 1.0
+        },
+        "requested_action": {
+          "count": 6,
+          "exact": 1.0,
+          "normalized": 1.0
+        }
+      }
+    },
+    "performance": {
+      "count": 0,
+      "p50_latency_seconds": null,
+      "p95_latency_seconds": null,
+      "error_rate": null
+    }
+  },
+  "data_integrity": {
+    "status": "pass",
+    "pass_rate": 1.0,
+    "checks": [
+      {
+        "name": "columns:olist_customers_dataset.csv",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "name": "columns:olist_orders_dataset.csv",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "name": "columns:olist_order_items_dataset.csv",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "name": "columns:olist_products_dataset.csv",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "name": "columns:olist_order_payments_dataset.csv",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "name": "orders_without_customer",
+        "pass": true
+      },
+      {
+        "name": "items_without_order",
+        "pass": true
+      },
+      {
+        "name": "items_without_product",
+        "pass": true
+      },
+      {
+        "name": "payments_without_order",
+        "pass": true
+      },
+      {
+        "name": "unique_non_null:olist_customers_dataset.csv:customer_id",
+        "pass": true
+      },
+      {
+        "name": "unique_non_null:olist_orders_dataset.csv:order_id",
+        "pass": true
+      },
+      {
+        "name": "unique_non_null:olist_products_dataset.csv:product_id",
+        "pass": true
+      },
+      {
+        "name": "unique_non_null:olist_order_payments_dataset.csv:payment_id",
+        "pass": true
+      },
+      {
+        "name": "required_ids:olist_orders_dataset.csv",
+        "pass": true
+      },
+      {
+        "name": "required_ids:olist_order_items_dataset.csv",
+        "pass": true
+      },
+      {
+        "name": "required_ids:olist_order_payments_dataset.csv",
+        "pass": true
+      },
+      {
+        "name": "required_ids:olist_products_dataset.csv",
+        "pass": true
+      },
+      {
+        "name": "duplicate_order_product_items",
+        "pass": true
+      },
+      {
+        "name": "invalid_order_dates",
+        "pass": true,
+        "violations": 0
+      },
+      {
+        "name": "delivery_before_purchase",
+        "pass": true,
+        "violations": 0
+      }
+    ]
+  },
+  "graph_integrity": {
+    "status": "pass",
+    "pass_rate": 1.0,
+    "checks": [
+      {
+        "name": "required_constraints",
+        "pass": true,
+        "missing": []
+      },
+      {
+        "name": "duplicate_customer_ids",
+        "pass": true,
+        "violations": 0
+      },
+      {
+        "name": "duplicate_order_ids",
+        "pass": true,
+        "violations": 0
+      },
+      {
+        "name": "orders_without_customer",
+        "pass": true,
+        "violations": 0
+      },
+      {
+        "name": "tickets_without_customer",
+        "pass": true,
+        "violations": 0
+      },
+      {
+        "name": "requests_without_customer",
+        "pass": true,
+        "violations": 0
+      },
+      {
+        "name": "requests_without_order",
+        "pass": true,
+        "violations": 0
+      },
+      {
+        "name": "payment_issues_without_order",
+        "pass": true,
+        "violations": 0
+      },
+      {
+        "name": "duplicate_relationship_groups",
+        "pass": true,
+        "violations": 0
+      }
+    ]
+  },
+  "business_rules": {
+    "status": "pass",
+    "pass_rate": 1.0,
+    "checks": [
+      {
+        "name": "refund_inside",
+        "pass": true
+      },
+      {
+        "name": "refund_boundary",
+        "pass": true
+      },
+      {
+        "name": "refund_outside",
+        "pass": true
+      },
+      {
+        "name": "refund_missing_date",
+        "pass": true
+      },
+      {
+        "name": "return_boundary",
+        "pass": true
+      },
+      {
+        "name": "return_outside",
+        "pass": true
+      },
+      {
+        "name": "replacement_defect",
+        "pass": true
+      },
+      {
+        "name": "replacement_non_defect",
+        "pass": true
+      },
+      {
+        "name": "warranty_boundary",
+        "pass": true
+      },
+      {
+        "name": "warranty_outside",
+        "pass": true
+      },
+      {
+        "name": "warranty_exclusion",
+        "pass": true
+      },
+      {
+        "name": "cancel_approved",
+        "pass": true
+      },
+      {
+        "name": "cancel_shipped",
+        "pass": true
+      },
+      {
+        "name": "card_timing",
+        "pass": true
+      },
+      {
+        "name": "bank_timing",
+        "pass": true
+      },
+      {
+        "name": "voucher_timing",
+        "pass": true
+      }
+    ]
+  },
+  "failures": [
+    {
+      "id": "hold-0076",
+      "category": "intent",
+      "expected": "damaged_product",
+      "actual": "replacement_request"
+    },
+    {
+      "id": "hold-0077",
+      "category": "intent",
+      "expected": "order_tracking",
+      "actual": "return_request"
+    },
+    {
+      "id": "hold-0078",
+      "category": "intent",
+      "expected": "cancel_order",
+      "actual": "policy_question"
+    },
+    {
+      "id": "hold-0079",
+      "category": "intent",
+      "expected": "cancel_order",
+      "actual": "policy_question"
+    }
+  ],
+  "skipped": [
+    "RAG retrieval and grounding: evaluation metadata/live token not configured.",
+    "Actions, privacy, confirmation, and E2E writes: isolated records not configured."
+  ],
+  "category_status": {
+    "security_privacy": "skipped",
+    "graph_integrity": "pass",
+    "business_rules": "pass",
+    "rag_retrieval": "skipped",
+    "grounding_citations": "skipped",
+    "orchestrator": "skipped",
+    "confirmation_safety": "skipped",
+    "actions": "skipped",
+    "api": "skipped",
+    "end_to_end_results": "skipped"
+  },
+  "recommendations": [
+    "Run graph/RAG/privacy suites only against isolated test services and controlled records.",
+    "Treat failed intent classes in the detailed confusion matrix as routing work, not as LLM score tuning."
+  ]
+}
