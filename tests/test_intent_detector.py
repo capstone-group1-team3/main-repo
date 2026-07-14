@@ -134,3 +134,115 @@ def test_unknown_message_uses_safe_default_without_llm() -> None:
     result = detect_intent("Hello there", use_llm_fallback=False)
     assert result["intent"] == "policy_question"
     assert result["confidence"] < 0.50
+
+
+def test_contextual_reply_uses_llm_before_damage_regex(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    history = [
+        {"role": "user", "content": "I want a refund for ORD012349."},
+        {
+            "role": "assistant",
+            "content": (
+                "The refund window passed. This may be eligible as a warranty "
+                "claim. Would you like to proceed?"
+            ),
+        },
+    ]
+
+    monkeypatch.setattr(
+        "app.agents.orchestrator.intent_detector._llm_detect",
+        lambda message, recent: {
+            "intent": "warranty_claim",
+            "confidence": 0.96,
+            "reason": "accepted the offered warranty path",
+        },
+    )
+
+    result = detect_intent("Yes, my product got broken", history=history)
+
+    assert result["intent"] == "warranty_claim"
+
+
+def test_contextual_yes_continues_warranty_when_llm_is_unavailable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    history = [
+        {"role": "user", "content": "ORD012349"},
+        {
+            "role": "assistant",
+            "content": (
+                "The refund window passed. This may be eligible as a warranty "
+                "claim ? would you like to proceed?"
+            ),
+        },
+    ]
+
+    monkeypatch.setattr(
+        "app.agents.orchestrator.intent_detector._llm_detect",
+        lambda message, recent: {
+            "intent": "policy_question",
+            "confidence": 0.25,
+            "reason": "llm fallback failed",
+        },
+    )
+
+    result = detect_intent("yes", history=history)
+
+    assert result["intent"] == "warranty_claim"
+    assert result["reason"] == "conversation-aware deterministic fallback"
+
+
+def test_fault_answer_stays_in_warranty_flow_when_llm_is_unavailable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    history = [
+        {
+            "role": "assistant",
+            "content": (
+                "This may be eligible as a warranty claim. "
+                "Would you like to proceed?"
+            ),
+        },
+        {"role": "user", "content": "yes"},
+        {"role": "assistant", "content": "What fault did you notice?"},
+    ]
+
+    monkeypatch.setattr(
+        "app.agents.orchestrator.intent_detector._llm_detect",
+        lambda message, recent: {
+            "intent": "policy_question",
+            "confidence": 0.25,
+            "reason": "llm fallback failed",
+        },
+    )
+
+    result = detect_intent("Yes, my product got broken", history=history)
+
+    assert result["intent"] == "warranty_claim"
+
+
+def test_clear_new_request_keeps_deterministic_routing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    history = [
+        {
+            "role": "assistant",
+            "content": (
+                "This may be eligible as a warranty claim. "
+                "Would you like to proceed?"
+            ),
+        }
+    ]
+
+    def fail_if_called(message, recent):
+        raise AssertionError("Contextual LLM called for a clear new request")
+
+    monkeypatch.setattr(
+        "app.agents.orchestrator.intent_detector._llm_detect",
+        fail_if_called,
+    )
+
+    result = detect_intent("Where is my order?", history=history)
+
+    assert result["intent"] == "order_tracking"
