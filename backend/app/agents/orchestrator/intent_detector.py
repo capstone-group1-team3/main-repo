@@ -203,6 +203,20 @@ _INDECISION = re.compile(
     re.I,
 )
 
+_CONTEXTUAL_FOLLOW_UP = re.compile(
+    r"(?:"
+    r"^\s*(?:yes|yeah|yep|sure|okay|ok|please|no|nope)\b"
+    r"|^\s*(?:it|that|this|the same|instead)\b"
+    r"|\b(?:go ahead|proceed|do that|that one|the other option)\b"
+    r")",
+    re.I,
+)
+
+_AFFIRMATIVE_FOLLOW_UP = re.compile(
+    r"^\s*(?:yes|yeah|yep|sure|okay|ok|please|go ahead|proceed)\b",
+    re.I,
+)
+
 _CONDITIONAL_RETURN = re.compile(
     r"(?:\b(?:can|could|would) i return\b.{0,80}\b(?:if|when|in case)\b|"
     r"\breturn\b.{0,60}\bif\b)",
@@ -226,6 +240,12 @@ Priority guidance:
 - Explicit requested action (refund, return, replace, cancel) -> that action intent
 - A product damaged on arrival without another explicit requested action -> damaged_product
 - General rules, timing, coverage, requirements, or process -> policy_question
+Use the conversation when the latest message is a follow-up. A short answer such
+as "yes" accepts the assistant's latest offered next step. If the assistant
+offered a warranty path after denying a refund and the customer accepts or then
+describes a broken/failed product, continue with warranty_claim rather than
+returning to refund_request or damaged_product.
+
 
 {history_block}
 
@@ -245,6 +265,29 @@ def detect_intent(
     """Classify a customer message into one supported intent."""
     started = time.perf_counter()
     text = " ".join(message.strip().split())
+    recent_history = history or []
+
+    # Contextual replies such as "yes" or "yes, it broke" cannot be classified
+    # correctly from the current message alone. Let the LLM interpret them with
+    # the recent conversation before broad regex rules consume words like
+    # "broken". No extra server-side conversation state is required.
+    contextual_follow_up = _is_contextual_follow_up(text, recent_history)
+    if use_llm_fallback and contextual_follow_up:
+        contextual_result = _llm_detect(text, recent_history)
+        if _is_usable_llm_result(contextual_result):
+            INTENT_FALLBACK.labels(outcome="success").inc()
+            return _record(contextual_result, started, "success")
+
+        INTENT_FALLBACK.labels(outcome="failure").inc()
+        inferred_intent = _infer_follow_up_intent(text, recent_history)
+        if inferred_intent:
+            return _result(
+                inferred_intent,
+                0.80,
+                "conversation-aware deterministic fallback",
+                started,
+            )
+
 
     # 1. Existing records/status must win over words such as refund/warranty.
     if _TICKET_STATUS.search(text):
@@ -373,6 +416,68 @@ def detect_intent(
         return _record(result, started, outcome)
 
     return _result("policy_question", 0.30, "safe default fallback", started)
+
+
+def _is_contextual_follow_up(
+    text: str,
+    history: list[dict[str, str]],
+) -> bool:
+    """Return whether the message depends on a preceding assistant turn."""
+    if not history or not text:
+        return False
+
+    if _CONTEXTUAL_FOLLOW_UP.search(text):
+        return True
+
+    # Very short referential replies are rarely meaningful without context.
+    words = re.findall(r"[A-Za-z0-9']+", text)
+    return len(words) <= 5 and bool(
+        re.search(r"\b(?:it|that|this|one|same|instead)\b", text, re.I)
+    )
+
+
+def _is_usable_llm_result(result: dict[str, Any]) -> bool:
+    """Accept only a supported, confident contextual classification."""
+    try:
+        confidence = float(result.get("confidence", 0))
+    except (TypeError, ValueError):
+        return False
+    return (
+        result.get("intent") in _ALLOWED_INTENTS
+        and confidence >= 0.60
+        and result.get("reason") != "llm fallback failed"
+    )
+
+
+def _infer_follow_up_intent(
+    text: str,
+    history: list[dict[str, str]],
+) -> str | None:
+    """Infer an offered workflow from history when the contextual LLM fails.
+
+    This fallback reads the history already supplied by the frontend. It does
+    not persist a new pending-intent flag and only applies to contextual replies.
+    """
+    if not (_AFFIRMATIVE_FOLLOW_UP.search(text) or _GENERIC_DAMAGE.search(text)):
+        return None
+
+    assistant_context = "\n".join(
+        str(turn.get("content", ""))
+        for turn in history[-6:]
+        if turn.get("role") == "assistant"
+    ).lower()
+
+    # Warranty can be offered after a refund denial, or continued by asking for
+    # the product fault. Check it before refund because both may appear together.
+    if "warranty" in assistant_context or "what fault did you notice" in assistant_context:
+        return "warranty_claim"
+    if "replacement" in assistant_context:
+        return "replacement_request"
+    if "return" in assistant_context:
+        return "return_request"
+    if "refund" in assistant_context:
+        return "refund_request"
+    return None
 
 
 def _result(
