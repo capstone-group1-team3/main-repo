@@ -240,3 +240,148 @@ def test_no_implicit_latest_order_for_sensitive():
     # Empty order: no status → should treat as ineligible (status in BLOCKED defaults)
     # Main thing: it does not raise
     assert elig.eligible is False or elig.eligible is True  # just no crash
+
+
+def test_confirmed_sensitive_action_advances_past_confirmation_gate(monkeypatch):
+    """A restored yes must execute, not ask for the same confirmation again."""
+    from app.agents.action import action_agent, action_router
+    from app.agents.order_graph import order_graph_agent
+    from app.agents.rag_policy import rag_policy_agent
+
+    rules = {
+        **_RULES,
+        "warranty": {
+            "period_months": 12,
+            "requires_defect": True,
+            "excludes": ["accidental_damage", "misuse", "normal_wear"],
+        },
+    }
+    current_order = _order("delivered", days_since_delivery=5)
+    calls = {"action": 0}
+
+    monkeypatch.setattr(action_router, "get_rules", lambda: rules)
+    monkeypatch.setattr(rag_policy_agent, "run", lambda **_: {
+        "policy_evidence": "supported policy",
+        "sources": ["refund_policy.md"],
+        "candidate_ids": ["refund_policy.md::body::0"],
+    })
+    monkeypatch.setattr(order_graph_agent, "run", lambda **_: {
+        "order_data": current_order,
+        "orders": [], "tickets": [], "requests": [],
+        "ownership_ok": True,
+    })
+    monkeypatch.setattr(
+        loop_controller,
+        "_reload_current_owned_order",
+        lambda state: setattr(state, "order_data", current_order) or True,
+    )
+
+    def execute(_state):
+        calls["action"] += 1
+        return {
+            "action": "refund_request_created",
+            "request_id": "SR-TEST",
+            "status": "open",
+        }
+
+    monkeypatch.setattr(action_agent, "run", execute)
+    state = loop_controller.run_loop(loop_controller.OrchestratorState(
+        customer_id="C001",
+        message="yes",
+        intent="refund_request",
+        confidence=0.95,
+        entities={"order_id": "ORD001", "issue": "damaged"},
+        pending_action={"intent": "refund_request", "order_id": "ORD001"},
+        confirmation_required=True,
+    ))
+
+    assert calls["action"] == 1
+    assert state.action_result["action"] == "refund_request_created"
+    assert state.confirmation_required is False
+
+
+def test_unconfirmed_sensitive_action_never_calls_action_agent(monkeypatch):
+    from app.agents.action import action_agent, action_router
+    from app.agents.order_graph import order_graph_agent
+    from app.agents.rag_policy import rag_policy_agent
+
+    rules = {
+        **_RULES,
+        "warranty": {
+            "period_months": 12,
+            "requires_defect": True,
+            "excludes": ["accidental_damage", "misuse", "normal_wear"],
+        },
+    }
+    monkeypatch.setattr(action_router, "get_rules", lambda: rules)
+    monkeypatch.setattr(rag_policy_agent, "run", lambda **_: {
+        "policy_evidence": "supported policy", "sources": [],
+        "candidate_ids": [],
+    })
+    monkeypatch.setattr(order_graph_agent, "run", lambda **_: {
+        "order_data": _order("delivered", days_since_delivery=5),
+        "orders": [], "tickets": [], "requests": [],
+        "ownership_ok": True,
+    })
+    monkeypatch.setattr(
+        action_agent, "run",
+        lambda _state: pytest.fail("action ran before confirmation"),
+    )
+
+    state = loop_controller.run_loop(loop_controller.OrchestratorState(
+        customer_id="C001",
+        message="Refund order ORD001 because it was damaged.",
+        intent="refund_request",
+        confidence=0.95,
+        entities={"order_id": "ORD001", "issue": "damaged"},
+    ))
+
+    assert state.confirmation_required is True
+    assert state.action_result is None
+
+
+def test_default_store_ttl_comes_from_settings(monkeypatch):
+    from app.agents.orchestrator import conversation_store
+
+    monkeypatch.setattr(
+        conversation_store.settings, "conversation_ttl_seconds", 7
+    )
+    assert InMemoryConversationStore()._ttl == 7
+
+
+def test_restored_confirmation_resumes_workflow_without_planner(monkeypatch):
+    """A bare yes must not be re-planned as an unrelated low-confidence turn."""
+    store = InMemoryConversationStore()
+    conv_id = new_conversation_id()
+    store.save(ConversationStateData(
+        customer_id="C001",
+        conversation_id=conv_id,
+        intent="refund_request",
+        entities={"order_id": "ORD001", "issue": "damaged"},
+        pending_action=PendingActionContext(
+            intent="refund_request", order_id="ORD001", amount=100.0,
+            order_status="delivered", eligibility={"requirements": []},
+        ),
+        confirmation_required=True,
+    ))
+    observed = {}
+
+    monkeypatch.setattr(orchestrator_agent, "get_store", lambda: store)
+    monkeypatch.setattr(
+        orchestrator_agent, "detect_intent",
+        lambda *args, **kwargs: {"intent": "policy_question", "confidence": 0.30},
+    )
+    monkeypatch.setattr(orchestrator_agent, "extract_entities", lambda *args, **kwargs: {})
+
+    def capture(state):
+        observed["plan"] = list(state.current_plan)
+        loop_controller._handle_confirm(state)
+        return state
+
+    monkeypatch.setattr(orchestrator_agent, "run_loop", capture)
+    state = orchestrator_agent.run(
+        message="yes", customer_id="C001", conversation_id=conv_id,
+    )
+
+    assert observed["plan"] == ["rag_policy", "order_graph", "action"]
+    assert state.confirmation_received is True

@@ -21,6 +21,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any
 
+from app.config.settings import settings
+
 logger = logging.getLogger("conversation_store")
 
 TTL_SECONDS = 15 * 60
@@ -77,7 +79,7 @@ class InMemoryConversationStore(AbstractConversationStore):
 
     _warned = False
 
-    def __init__(self, ttl_seconds: int = TTL_SECONDS):
+    def __init__(self, ttl_seconds: int | None = None):
         if not InMemoryConversationStore._warned:
             logger.warning(
                 "InMemoryConversationStore: not suitable for multi-worker deployments. "
@@ -86,7 +88,10 @@ class InMemoryConversationStore(AbstractConversationStore):
             InMemoryConversationStore._warned = True
         self._store: dict[str, tuple[ConversationStateData, float]] = {}
         self._lock  = threading.Lock()
-        self._ttl   = ttl_seconds
+        self._ttl   = (
+            settings.conversation_ttl_seconds
+            if ttl_seconds is None else ttl_seconds
+        )
 
     def get(self, conversation_id: str, customer_id: str) -> ConversationStateData | None:
         with self._lock:
@@ -95,7 +100,7 @@ class InMemoryConversationStore(AbstractConversationStore):
             if entry is None:
                 return None
             data, expires_at = entry
-            if time.time() > expires_at:
+            if time.monotonic() > expires_at:
                 del self._store[conversation_id]
                 from app.monitoring.metrics import CONFIRMATION_EXPIRED
                 CONFIRMATION_EXPIRED.inc()
@@ -108,7 +113,9 @@ class InMemoryConversationStore(AbstractConversationStore):
     def save(self, data: ConversationStateData) -> None:
         data.touch()
         with self._lock:
-            self._store[data.conversation_id] = (data, time.time() + self._ttl)
+            self._store[data.conversation_id] = (
+                data, time.monotonic() + self._ttl
+            )
 
     def delete(self, conversation_id: str) -> None:
         with self._lock:
@@ -121,7 +128,7 @@ class InMemoryConversationStore(AbstractConversationStore):
                 entry[0].executed = True
 
     def _evict(self) -> None:
-        now = time.time()
+        now = time.monotonic()
         expired = [k for k, (_, e) in self._store.items() if now > e]
         for k in expired:
             del self._store[k]

@@ -236,3 +236,9 @@ frontend/.next/
 .venv/
 __pycache__/
 *.pyc
+.env.eval
+eval/report_before_rerun.md
+eval/results_before_rerun.json
+eval/live_report.md
+eval/live_results.json
+vector_store/

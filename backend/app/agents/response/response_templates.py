@@ -13,6 +13,13 @@ def template_clarification(question: str) -> str:
     return question
 
 
+def template_greeting(message: str) -> str:
+    """Deterministic social response; no policy evidence or citations needed."""
+    if message.strip().lower().startswith(("thanks", "thank you")):
+        return "You're welcome! How can I help you today?"
+    return "Hi! How can I help you today?"
+
+
 def template_ownership_error() -> str:
     return (
         "I wasn't able to find that order in your account. "
@@ -95,7 +102,10 @@ def template_action_result(action_result: dict[str, Any], intent: str) -> str:
         tid = action_result.get("ticket_id", "")
         return f"A support ticket ({tid}) has been created. Our team will follow up with you."
 
-    if action in ("refund_denied", "return_denied", "replacement_denied", "warranty_denied", "cancel_denied"):
+    if action in (
+        "refund_denied", "return_denied", "replacement_denied",
+        "warranty_claim_denied", "warranty_denied", "cancel_denied",
+    ):
         reason = action_result.get("reason", "")
         suggest = action_result.get("suggest_warranty", False)
         base = f"Unfortunately we're unable to process this request: {reason}."

@@ -35,7 +35,7 @@ def run(state: Any) -> dict[str, Any]:
     days = days_since_delivery(order_data)
     if days is not None and days > warranty_days:
         return {
-            "action": "warranty_denied",
+            "action": "warranty_claim_denied",
             "reason": f"warranty period of {rules['period_months']} months has passed",
         }
 

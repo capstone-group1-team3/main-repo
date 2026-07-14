@@ -1,0 +1,1031 @@
+{
+  "run": {
+    "run_id": "0fc2b17f69494491ab255d507c593d0f",
+    "started_at": "2026-07-14T09:37:44.849249+00:00",
+    "fixture_count": 90
+  },
+  "environment": {
+    "base_url": "http://localhost:18000",
+    "live_token_supplied": false,
+    "write_evaluation": true,
+    "isolated_evaluation": true
+  },
+  "status": "fail",
+  "thresholds": {
+    "data_integrity": {
+      "value": 1.0,
+      "operator": ">=",
+      "threshold": 1.0,
+      "pass": true
+    },
+    "rule_compliance": {
+      "value": 1.0,
+      "operator": ">=",
+      "threshold": 1.0,
+      "pass": true
+    },
+    "intent_macro_f1": {
+      "value": 1.0,
+      "operator": ">=",
+      "threshold": 0.9,
+      "pass": true
+    },
+    "entity_slot_accuracy": {
+      "value": 1.0,
+      "operator": ">=",
+      "threshold": 0.85,
+      "pass": true
+    }
+  },
+  "metrics": {
+    "intent": {
+      "count": 88,
+      "accuracy": 1.0,
+      "macro_precision": 1.0,
+      "macro_recall": 1.0,
+      "macro_f1": 1.0,
+      "per_label": {
+        "cancel_order": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 9
+        },
+        "damaged_product": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 4
+        },
+        "order_tracking": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 9
+        },
+        "payment_issue": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 5
+        },
+        "policy_question": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 25
+        },
+        "refund_request": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 11
+        },
+        "replacement_request": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 8
+        },
+        "return_request": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 6
+        },
+        "ticket_status": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 4
+        },
+        "warranty_claim": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 7
+        }
+      },
+      "confusion_matrix": {
+        "cancel_order": {
+          "cancel_order": 9,
+          "damaged_product": 0,
+          "order_tracking": 0,
+          "payment_issue": 0,
+          "policy_question": 0,
+          "refund_request": 0,
+          "replacement_request": 0,
+          "return_request": 0,
+          "ticket_status": 0,
+          "warranty_claim": 0
+        },
+        "damaged_product": {
+          "cancel_order": 0,
+          "damaged_product": 4,
+          "order_tracking": 0,
+          "payment_issue": 0,
+          "policy_question": 0,
+          "refund_request": 0,
+          "replacement_request": 0,
+          "return_request": 0,
+          "ticket_status": 0,
+          "warranty_claim": 0
+        },
+        "order_tracking": {
+          "cancel_order": 0,
+          "damaged_product": 0,
+          "order_tracking": 9,
+          "payment_issue": 0,
+          "policy_question": 0,
+          "refund_request": 0,
+          "replacement_request": 0,
+          "return_request": 0,
+          "ticket_status": 0,
+          "warranty_claim": 0
+        },
+        "payment_issue": {
+          "cancel_order": 0,
+          "damaged_product": 0,
+          "order_tracking": 0,
+          "payment_issue": 5,
+          "policy_question": 0,
+          "refund_request": 0,
+          "replacement_request": 0,
+          "return_request": 0,
+          "ticket_status": 0,
+          "warranty_claim": 0
+        },
+        "policy_question": {
+          "cancel_order": 0,
+          "damaged_product": 0,
+          "order_tracking": 0,
+          "payment_issue": 0,
+          "policy_question": 25,
+          "refund_request": 0,
+          "replacement_request": 0,
+          "return_request": 0,
+          "ticket_status": 0,
+          "warranty_claim": 0
+        },
+        "refund_request": {
+          "cancel_order": 0,
+          "damaged_product": 0,
+          "order_tracking": 0,
+          "payment_issue": 0,
+          "policy_question": 0,
+          "refund_request": 11,
+          "replacement_request": 0,
+          "return_request": 0,
+          "ticket_status": 0,
+          "warranty_claim": 0
+        },
+        "replacement_request": {
+          "cancel_order": 0,
+          "damaged_product": 0,
+          "order_tracking": 0,
+          "payment_issue": 0,
+          "policy_question": 0,
+          "refund_request": 0,
+          "replacement_request": 8,
+          "return_request": 0,
+          "ticket_status": 0,
+          "warranty_claim": 0
+        },
+        "return_request": {
+          "cancel_order": 0,
+          "damaged_product": 0,
+          "order_tracking": 0,
+          "payment_issue": 0,
+          "policy_question": 0,
+          "refund_request": 0,
+          "replacement_request": 0,
+          "return_request": 6,
+          "ticket_status": 0,
+          "warranty_claim": 0
+        },
+        "ticket_status": {
+          "cancel_order": 0,
+          "damaged_product": 0,
+          "order_tracking": 0,
+          "payment_issue": 0,
+          "policy_question": 0,
+          "refund_request": 0,
+          "replacement_request": 0,
+          "return_request": 0,
+          "ticket_status": 4,
+          "warranty_claim": 0
+        },
+        "warranty_claim": {
+          "cancel_order": 0,
+          "damaged_product": 0,
+          "order_tracking": 0,
+          "payment_issue": 0,
+          "policy_question": 0,
+          "refund_request": 0,
+          "replacement_request": 0,
+          "return_request": 0,
+          "ticket_status": 0,
+          "warranty_claim": 7
+        }
+      }
+    },
+    "entities": {
+      "count": 23,
+      "exact_match": 1.0,
+      "normalized_match": 1.0,
+      "per_slot": {
+        "issue": {
+          "count": 6,
+          "exact": 1.0,
+          "normalized": 1.0
+        },
+        "order_id": {
+          "count": 8,
+          "exact": 1.0,
+          "normalized": 1.0
+        },
+        "product": {
+          "count": 3,
+          "exact": 1.0,
+          "normalized": 1.0
+        },
+        "requested_action": {
+          "count": 6,
+          "exact": 1.0,
+          "normalized": 1.0
+        }
+      }
+    },
+    "performance": {
+      "count": 0,
+      "p50_latency_seconds": null,
+      "p95_latency_seconds": null,
+      "error_rate": null
+    }
+  },
+  "data_integrity": {
+    "status": "pass",
+    "pass_rate": 1.0,
+    "checks": [
+      {
+        "name": "columns:olist_customers_dataset.csv",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "name": "columns:olist_orders_dataset.csv",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "name": "columns:olist_order_items_dataset.csv",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "name": "columns:olist_products_dataset.csv",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "name": "columns:olist_order_payments_dataset.csv",
+        "pass": true,
+        "detail": []
+      },
+      {
+        "name": "orders_without_customer",
+        "pass": true
+      },
+      {
+        "name": "items_without_order",
+        "pass": true
+      },
+      {
+        "name": "items_without_product",
+        "pass": true
+      },
+      {
+        "name": "payments_without_order",
+        "pass": true
+      },
+      {
+        "name": "unique_non_null:olist_customers_dataset.csv:customer_id",
+        "pass": true
+      },
+      {
+        "name": "unique_non_null:olist_orders_dataset.csv:order_id",
+        "pass": true
+      },
+      {
+        "name": "unique_non_null:olist_products_dataset.csv:product_id",
+        "pass": true
+      },
+      {
+        "name": "unique_non_null:olist_order_payments_dataset.csv:payment_id",
+        "pass": true
+      },
+      {
+        "name": "required_ids:olist_orders_dataset.csv",
+        "pass": true
+      },
+      {
+        "name": "required_ids:olist_order_items_dataset.csv",
+        "pass": true
+      },
+      {
+        "name": "required_ids:olist_order_payments_dataset.csv",
+        "pass": true
+      },
+      {
+        "name": "required_ids:olist_products_dataset.csv",
+        "pass": true
+      },
+      {
+        "name": "duplicate_order_product_items",
+        "pass": true
+      },
+      {
+        "name": "invalid_order_dates",
+        "pass": true,
+        "violations": 0
+      },
+      {
+        "name": "delivery_before_purchase",
+        "pass": true,
+        "violations": 0
+      }
+    ]
+  },
+  "graph_integrity": {
+    "status": "pass",
+    "pass_rate": 1.0,
+    "checks": [
+      {
+        "name": "required_constraints",
+        "pass": true,
+        "missing": []
+      },
+      {
+        "name": "duplicate_customer_ids",
+        "pass": true,
+        "violations": 0
+      },
+      {
+        "name": "duplicate_order_ids",
+        "pass": true,
+        "violations": 0
+      },
+      {
+        "name": "orders_without_customer",
+        "pass": true,
+        "violations": 0
+      },
+      {
+        "name": "tickets_without_customer",
+        "pass": true,
+        "violations": 0
+      },
+      {
+        "name": "requests_without_customer",
+        "pass": true,
+        "violations": 0
+      },
+      {
+        "name": "requests_without_order",
+        "pass": true,
+        "violations": 0
+      },
+      {
+        "name": "payment_issues_without_order",
+        "pass": true,
+        "violations": 0
+      },
+      {
+        "name": "duplicate_relationship_groups",
+        "pass": true,
+        "violations": 0
+      }
+    ]
+  },
+  "business_rules": {
+    "status": "pass",
+    "pass_rate": 1.0,
+    "checks": [
+      {
+        "name": "refund_inside",
+        "pass": true
+      },
+      {
+        "name": "refund_boundary",
+        "pass": true
+      },
+      {
+        "name": "refund_outside",
+        "pass": true
+      },
+      {
+        "name": "refund_missing_date",
+        "pass": true
+      },
+      {
+        "name": "return_boundary",
+        "pass": true
+      },
+      {
+        "name": "return_outside",
+        "pass": true
+      },
+      {
+        "name": "replacement_defect",
+        "pass": true
+      },
+      {
+        "name": "replacement_non_defect",
+        "pass": true
+      },
+      {
+        "name": "warranty_boundary",
+        "pass": true
+      },
+      {
+        "name": "warranty_outside",
+        "pass": true
+      },
+      {
+        "name": "warranty_exclusion",
+        "pass": true
+      },
+      {
+        "name": "cancel_approved",
+        "pass": true
+      },
+      {
+        "name": "cancel_shipped",
+        "pass": true
+      },
+      {
+        "name": "card_timing",
+        "pass": true
+      },
+      {
+        "name": "bank_timing",
+        "pass": true
+      },
+      {
+        "name": "voucher_timing",
+        "pass": true
+      }
+    ]
+  },
+  "failures": [
+    {
+      "id": "grounding_case_4",
+      "category": "grounding",
+      "expected": "evidence-grounded answer or safe decline",
+      "actual": {
+        "candidates": [
+          "shipping_policy.md::shipping---delivery-policy::5",
+          "shipping_policy.md::shipping---delivery-policy::3",
+          "shipping_policy.md::shipping---delivery-policy::1",
+          "payment_policy.md::replacement---payment-policy::1"
+        ],
+        "accepted": [],
+        "invalid": [],
+        "supported": false,
+        "declined": true
+      }
+    },
+    {
+      "id": "grounding_case_5",
+      "category": "grounding",
+      "expected": "evidence-grounded answer or safe decline",
+      "actual": {
+        "candidates": [
+          "payment_policy.md::replacement---payment-policy::3",
+          "refund_policy.md::refund-policy::1",
+          "payment_policy.md::replacement---payment-policy::1",
+          "refund_policy.md::refund-policy::4"
+        ],
+        "accepted": [],
+        "invalid": [],
+        "supported": false,
+        "declined": true
+      }
+    },
+    {
+      "id": "action_case_1",
+      "category": "actions",
+      "expected": {
+        "action": "refund_request_created",
+        "status": "executed"
+      },
+      "actual": {
+        "action": null,
+        "status": "failed"
+      }
+    },
+    {
+      "id": "action_case_2",
+      "category": "actions",
+      "expected": {
+        "action": "return_request_created",
+        "status": "executed"
+      },
+      "actual": {
+        "action": "return_denied",
+        "status": "failed"
+      }
+    },
+    {
+      "id": "action_case_3",
+      "category": "actions",
+      "expected": {
+        "action": "replacement_request_created",
+        "status": "executed"
+      },
+      "actual": {
+        "action": "replacement_denied",
+        "status": "failed"
+      }
+    },
+    {
+      "id": "action_case_4",
+      "category": "actions",
+      "expected": {
+        "action": "warranty_claim_created",
+        "status": "executed"
+      },
+      "actual": {
+        "action": "warranty_claim_denied",
+        "status": "failed"
+      }
+    },
+    {
+      "id": "action_case_6",
+      "category": "actions",
+      "expected": {
+        "action": "ticket_created",
+        "status": "executed"
+      },
+      "actual": {
+        "action": null,
+        "status": "failed"
+      }
+    },
+    {
+      "id": "refund_executes_once",
+      "category": "confirmation",
+      "expected": "pass",
+      "actual": "failed"
+    },
+    {
+      "id": "return_executes_once",
+      "category": "confirmation",
+      "expected": "pass",
+      "actual": "failed"
+    },
+    {
+      "id": "replacement_executes_once",
+      "category": "confirmation",
+      "expected": "pass",
+      "actual": "failed"
+    },
+    {
+      "id": "warranty_executes_once",
+      "category": "confirmation",
+      "expected": "pass",
+      "actual": "failed"
+    },
+    {
+      "id": "service_requests_visible",
+      "category": "end_to_end",
+      "expected": "pass",
+      "actual": "failed"
+    },
+    {
+      "id": "ticket_visible",
+      "category": "end_to_end",
+      "expected": "pass",
+      "actual": "failed"
+    }
+  ],
+  "skipped": [
+    "Context-dependent confirmation fixtures excluded from stateless intent scoring: hold-0078, hold-0079."
+  ],
+  "category_status": {
+    "security_privacy": "pass",
+    "graph_integrity": "pass",
+    "business_rules": "pass",
+    "rag_retrieval": "completed",
+    "grounding_citations": "failed",
+    "orchestrator": "completed",
+    "confirmation_safety": "failed",
+    "actions": "failed",
+    "api": "pass",
+    "end_to_end_results": "failed",
+    "performance": "completed"
+  },
+  "recommendations": [
+    "Run graph/RAG/privacy suites only against isolated test services and controlled records.",
+    "Treat failed intent classes in the detailed confusion matrix as routing work, not as LLM score tuning."
+  ],
+  "rag_retrieval": {
+    "count": 7,
+    "top_1": 0.7142857142857143,
+    "top_3": 1.0,
+    "mrr": 0.8333333333333333,
+    "no_result_rate": 0.0,
+    "per_policy_top_3": {
+      "faq.md": 1.0,
+      "payment_policy.md": 1.0,
+      "refund_policy.md": 1.0,
+      "return_policy.md": 1.0,
+      "shipping_policy.md": 1.0,
+      "support_guidelines.md": 1.0,
+      "warranty_policy.md": 1.0
+    },
+    "p50_latency_seconds": 2.527822299998661,
+    "p95_latency_seconds": 11.337657399999443,
+    "cases": [
+      {
+        "id": "rag-refund",
+        "expected_sources": [
+          "refund_policy.md"
+        ],
+        "retrieved_sources": [
+          "refund_policy.md",
+          "warranty_policy.md",
+          "return_policy.md"
+        ],
+        "latency_seconds": 11.337657399999443
+      },
+      {
+        "id": "rag-return",
+        "expected_sources": [
+          "return_policy.md"
+        ],
+        "retrieved_sources": [
+          "return_policy.md",
+          "faq.md",
+          "faq.md"
+        ],
+        "latency_seconds": 2.5085404999990715
+      },
+      {
+        "id": "rag-warranty",
+        "expected_sources": [
+          "warranty_policy.md"
+        ],
+        "retrieved_sources": [
+          "warranty_policy.md",
+          "warranty_policy.md",
+          "warranty_policy.md"
+        ],
+        "latency_seconds": 2.574417600000743
+      },
+      {
+        "id": "rag-shipping",
+        "expected_sources": [
+          "shipping_policy.md"
+        ],
+        "retrieved_sources": [
+          "shipping_policy.md",
+          "shipping_policy.md",
+          "shipping_policy.md"
+        ],
+        "latency_seconds": 2.601645999995526
+      },
+      {
+        "id": "rag-payment",
+        "expected_sources": [
+          "payment_policy.md"
+        ],
+        "retrieved_sources": [
+          "payment_policy.md",
+          "refund_policy.md",
+          "payment_policy.md"
+        ],
+        "latency_seconds": 2.132841999999073
+      },
+      {
+        "id": "rag-support",
+        "expected_sources": [
+          "support_guidelines.md"
+        ],
+        "retrieved_sources": [
+          "shipping_policy.md",
+          "support_guidelines.md",
+          "faq.md"
+        ],
+        "latency_seconds": 2.158475999996881
+      },
+      {
+        "id": "rag-faq",
+        "expected_sources": [
+          "faq.md"
+        ],
+        "retrieved_sources": [
+          "shipping_policy.md",
+          "shipping_policy.md",
+          "faq.md"
+        ],
+        "latency_seconds": 2.527822299998661
+      }
+    ]
+  },
+  "grounding_citations": {
+    "count": 6,
+    "citation_validity": 1.0,
+    "unsupported_citation_count": 0,
+    "no_evidence_safety_pass_rate": null,
+    "grounding_pass_rate": 0.6666666666666666,
+    "llm_judge": "configured"
+  },
+  "orchestrator": {
+    "count": 5,
+    "exact_path_accuracy": 1.0,
+    "required_tool_recall": 1.0,
+    "unnecessary_tool_rate": 0.0,
+    "missing_critical_tool_rate": 0.0,
+    "expected_paths": [
+      [
+        "rag_policy",
+        "order_graph"
+      ],
+      [
+        "rag_policy",
+        "order_graph"
+      ],
+      [
+        "rag_policy",
+        "order_graph"
+      ],
+      [
+        "rag_policy",
+        "order_graph"
+      ],
+      [
+        "order_graph",
+        "rag_policy",
+        "action"
+      ]
+    ],
+    "actual_paths": [
+      [
+        "rag_policy",
+        "order_graph"
+      ],
+      [
+        "rag_policy",
+        "order_graph"
+      ],
+      [
+        "rag_policy",
+        "order_graph"
+      ],
+      [
+        "rag_policy",
+        "order_graph"
+      ],
+      [
+        "order_graph",
+        "rag_policy",
+        "action"
+      ]
+    ]
+  },
+  "confirmation_safety": {
+    "checks": [
+      {
+        "name": "refund_not_before_confirmation",
+        "pass": true
+      },
+      {
+        "name": "confirmation_ownership",
+        "pass": true
+      },
+      {
+        "name": "refund_executes_once",
+        "pass": false
+      },
+      {
+        "name": "duplicate_confirmation_no_replay",
+        "pass": true
+      },
+      {
+        "name": "return_not_before_confirmation",
+        "pass": true
+      },
+      {
+        "name": "unrelated_not_confirmation",
+        "pass": true
+      },
+      {
+        "name": "return_executes_once",
+        "pass": false
+      },
+      {
+        "name": "replacement_not_before_confirmation",
+        "pass": true
+      },
+      {
+        "name": "replacement_executes_once",
+        "pass": false
+      },
+      {
+        "name": "warranty_not_before_confirmation",
+        "pass": true
+      },
+      {
+        "name": "warranty_executes_once",
+        "pass": false
+      },
+      {
+        "name": "expired_confirmation_rejected",
+        "pass": true
+      },
+      {
+        "name": "valid_confirmation_executes",
+        "pass": true
+      },
+      {
+        "name": "payment_not_before_confirmation",
+        "pass": true
+      }
+    ],
+    "pass_rate": 0.7142857142857143
+  },
+  "actions": {
+    "count": 6,
+    "action_accuracy": 0.16666666666666666,
+    "cases": [
+      {
+        "expected": {
+          "action": "refund_request_created",
+          "status": "executed"
+        },
+        "actual": {
+          "action": null,
+          "status": "failed"
+        }
+      },
+      {
+        "expected": {
+          "action": "return_request_created",
+          "status": "executed"
+        },
+        "actual": {
+          "action": "return_denied",
+          "status": "failed"
+        }
+      },
+      {
+        "expected": {
+          "action": "replacement_request_created",
+          "status": "executed"
+        },
+        "actual": {
+          "action": "replacement_denied",
+          "status": "failed"
+        }
+      },
+      {
+        "expected": {
+          "action": "warranty_claim_created",
+          "status": "executed"
+        },
+        "actual": {
+          "action": "warranty_claim_denied",
+          "status": "failed"
+        }
+      },
+      {
+        "expected": {
+          "action": "order_cancelled",
+          "status": "executed"
+        },
+        "actual": {
+          "action": "order_cancelled",
+          "status": "executed"
+        }
+      },
+      {
+        "expected": {
+          "action": "ticket_created",
+          "status": "executed"
+        },
+        "actual": {
+          "action": null,
+          "status": "failed"
+        }
+      }
+    ],
+    "denied_checks": [
+      {
+        "name": "refund_outside_window_denied",
+        "pass": true
+      },
+      {
+        "name": "shipped_cancel_denied",
+        "pass": true
+      }
+    ]
+  },
+  "security_privacy": {
+    "count": 6,
+    "privacy_pass_rate": 1.0,
+    "pass": true,
+    "checks": [
+      {
+        "name": "protected_endpoint_requires_auth",
+        "pass": true
+      },
+      {
+        "name": "invalid_token_rejected",
+        "pass": true
+      },
+      {
+        "name": "expired_token_rejected",
+        "pass": true
+      },
+      {
+        "name": "customer_order_isolation",
+        "pass": true
+      },
+      {
+        "name": "cross_customer_chat_denied",
+        "pass": true
+      },
+      {
+        "name": "safe_errors_no_secrets",
+        "pass": true
+      }
+    ]
+  },
+  "api": {
+    "checks": [
+      {
+        "name": "registration",
+        "pass": true,
+        "actual": [
+          201,
+          201
+        ]
+      },
+      {
+        "name": "login",
+        "pass": true,
+        "actual": [
+          200,
+          200
+        ]
+      },
+      {
+        "name": "identity",
+        "pass": true,
+        "actual": 200
+      },
+      {
+        "name": "orders",
+        "pass": true,
+        "actual": 200
+      },
+      {
+        "name": "tickets",
+        "pass": true,
+        "actual": 200
+      },
+      {
+        "name": "requests",
+        "pass": true,
+        "actual": 200
+      }
+    ],
+    "pass_rate": 1.0
+  },
+  "end_to_end_results": {
+    "checks": [
+      {
+        "name": "service_requests_visible",
+        "pass": false
+      },
+      {
+        "name": "cancel_state_visible",
+        "pass": true
+      },
+      {
+        "name": "ticket_visible",
+        "pass": false
+      }
+    ],
+    "pass_rate": 0.3333333333333333
+  },
+  "performance": {
+    "endpoint": "/orders",
+    "count": 20,
+    "concurrency": 4,
+    "p50_latency_seconds": 0.6966744999954244,
+    "p95_latency_seconds": 0.7330376999962027,
+    "error_rate": 0.0
+  }
+}

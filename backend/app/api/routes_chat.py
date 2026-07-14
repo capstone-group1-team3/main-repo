@@ -3,6 +3,7 @@ api/routes_chat.py — POST /chat with conversation_id persistence.
 """
 from __future__ import annotations
 import re
+import logging
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -12,6 +13,7 @@ from app.auth.auth_middleware import get_current_identity
 from app.auth.auth_service import Identity
 from app.agents.orchestrator import orchestrator_agent
 from app.agents.response import chatbot_response_agent
+from app.agents.response.response_formatter import strip_citation_markup
 from app.monitoring.metrics import (
     GROUNDING_ANSWERED, GROUNDING_PASSED, GROUNDING_SOURCE_MISMATCH,
     TASK_COMPLETED,
@@ -20,6 +22,7 @@ from app.config.settings import settings
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 DECLINE = "I cannot answer this from the available sources."
+logger = logging.getLogger("app.chat")
 
 _CHUNK_ID_RE = re.compile(
     r'\[chunk_id[:\s]*[^\]]+\]|\[[^\]]*\.md::[^\]]*\]|\[[^\]]{0,60}::\d+\]',
@@ -82,7 +85,11 @@ def chat(
             conversation_history=history,
             conversation_id=body.conversation_id,
         )
-    except Exception:
+    except Exception as exc:
+        logger.exception(
+            "Chat orchestration failed request_id=%s error_type=%s detail=%s",
+            rid, type(exc).__name__, _safe_exception_detail(exc),
+        )
         raise HTTPException(status_code=500, detail="Something went wrong. Please try again.")
 
     # Confirmation gate
@@ -103,18 +110,29 @@ def chat(
 
     try:
         resp = chatbot_response_agent.run(state)
-    except Exception:
+    except Exception as exc:
+        logger.exception(
+            "Chat response generation failed request_id=%s error_type=%s detail=%s",
+            rid, type(exc).__name__, _safe_exception_detail(exc),
+        )
         raise HTTPException(status_code=500, detail="Something went wrong preparing the response.")
 
-    answer    = _CHUNK_ID_RE.sub("", resp.get("answer", "")).strip()
-    citations = resp.get("citations", [])
+    uses_rag = (
+        state.intent == "policy_question"
+        and bool(state.policy_evidence)
+        and bool(state.candidate_ids)
+    )
+    answer = resp.get("answer", "")
+    if uses_rag:
+        answer = strip_citation_markup(answer).strip()
+    citations = resp.get("citations", []) if uses_rag else []
     cand_ids  = set(state.candidate_ids)
 
-    if answer != DECLINE:
+    if uses_rag and answer != DECLINE:
         GROUNDING_ANSWERED.inc()
         if citations and all(c.get("chunk_id","") in cand_ids for c in citations):
             GROUNDING_PASSED.inc()
-    if state.invalid_citation_ids:
+    if uses_rag and state.invalid_citation_ids:
         GROUNDING_SOURCE_MISMATCH.inc(len(state.invalid_citation_ids))
 
     if state.action_result:
@@ -161,8 +179,11 @@ def _action_card(state: Any) -> ActionCard:
         action=action,
         request_id=r.get("request_id"),
         ticket_id=r.get("ticket_id"),
-        order_id=order.get("order_id"),
-        amount=order.get("payment_value"),
+        # Handlers normally execute with a freshly reloaded order, but keep
+        # the result contract self-contained for denied/failed outcomes and
+        # any handler that reports its order explicitly.
+        order_id=order.get("order_id") or r.get("order_id"),
+        amount=order.get("payment_value") or r.get("amount"),
         status=r.get("status"),
         next_step=r.get("next_step"),
         reason=r.get("reason"),
@@ -196,6 +217,16 @@ def _evaluation_metadata(state: Any, citations: list[dict]) -> dict[str, Any] | 
         "completion_reason": state.completion_reason,
         "eligibility_result": state.eligibility_result,
     }
+
+
+def _safe_exception_detail(exc: BaseException) -> str:
+    """Keep provider errors useful while preventing credential leakage."""
+    detail = str(exc)
+    for marker in ("Bearer ", "api_key=", "token=", "password="):
+        match = re.search(re.escape(marker), detail, flags=re.I)
+        if match:
+            detail = detail[:match.start()] + match.group(0) + "<redacted>"
+    return detail[:500]
 
 
 def _set_observability(request: Request, state: Any) -> None:

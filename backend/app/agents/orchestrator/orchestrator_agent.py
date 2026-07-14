@@ -9,13 +9,14 @@ import uuid
 from typing import Any
 
 from app.agents.orchestrator.state import OrchestratorState
-from app.agents.orchestrator.intent_detector import detect_intent
+from app.agents.orchestrator.intent_detector import detect_intent, is_greeting
 from app.agents.orchestrator.entity_extractor import extract_entities
 from app.agents.orchestrator.loop_controller import run_loop
 from app.agents.orchestrator.conversation_store import (
     get_store, new_conversation_id,
     ConversationStateData, PendingActionContext,
 )
+from app.agents.orchestrator.routing_rules import TOOL_SEQUENCE
 
 
 def run(
@@ -29,6 +30,21 @@ def run(
     history = conversation_history or []
     store   = get_store()
     conv_id = conversation_id or new_conversation_id()
+
+    # Social turns are complete without intent detection, retrieval, planner,
+    # or conversation-history inheritance.  This keeps a prior policy turn
+    # from contaminating a fresh greeting and avoids needless RAG calls.
+    if is_greeting(message):
+        return OrchestratorState(
+            request_id=rid,
+            customer_id=customer_id,
+            conversation_id=conv_id,
+            message=message,
+            intent="greeting",
+            confidence=1.0,
+            done=True,
+            completion_reason="greeting",
+        )
 
     # Load server-side state
     persisted: ConversationStateData | None = None
@@ -82,6 +98,17 @@ def run(
                 "delivered_date": None,
                 "payment_value":  pa.amount,
             }
+        # A confirmation reply (typically just ``yes``/``no``) has no useful
+        # intent confidence of its own.  Reusing the planner for that turn can
+        # therefore choose ``respond`` before the pending action is reached.
+        # Resume the persisted workflow deterministically; order_graph remains
+        # in the plan so the controller re-fetches ownership and current order
+        # facts before the action safety gate runs.
+        state.current_plan = [
+            tool for tool in TOOL_SEQUENCE.get(state.intent, [])
+            if tool != "response"
+        ]
+        state.plan_valid = bool(state.current_plan)
         state.ownership_ok = True
 
     # Run the loop

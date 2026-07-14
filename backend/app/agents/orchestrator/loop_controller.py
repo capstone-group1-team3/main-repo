@@ -45,6 +45,14 @@ _SENSITIVE = {
 _YES = frozenset({"yes","confirm","proceed","do it","go ahead","sure","ok",
                   "okay","yep","yup","please","yes please","y"})
 _NO  = frozenset({"no","cancel","stop","dont","nope","negative","nevermind","n","abort"})
+_DENIED_ACTIONS = {
+    "refund_request": "refund_denied",
+    "damaged_product": "refund_denied",
+    "return_request": "return_denied",
+    "replacement_request": "replacement_denied",
+    "warranty_claim": "warranty_claim_denied",
+    "cancel_order": "cancel_denied",
+}
 
 _MULTI_GOAL_RE = re.compile(
     r"\b(where is|track|tracking).{0,60}\b(return|refund|replace|cancel|warrant)\b"
@@ -190,7 +198,7 @@ def _run_loop_impl(state: OrchestratorState) -> OrchestratorState:
                             "damaged_product": "refund_denied",
                             "return_request": "return_denied",
                             "replacement_request": "replacement_denied",
-                            "warranty_claim": "warranty_denied",
+                            "warranty_claim": "warranty_claim_denied",
                             "cancel_order": "cancel_denied",
                         }.get(state.intent, "no_action_needed")
                         state.action_result = {
@@ -206,22 +214,26 @@ def _run_loop_impl(state: OrchestratorState) -> OrchestratorState:
                         state.observations.append(obs); _snap(state)
                         state.done = True; break
 
-                    # Eligible → set confirmation gate
-                    state.pending_action = {
-                        "intent":       state.intent,
-                        "order_id":     elig.order_id,
-                        "amount":       elig.amount,
-                        "requirements": elig.requirements,
-                        "order_status": elig.order_status,
-                    }
-                    state.confirmation_context = {
-                        "intent":   state.intent,
-                        "order_id": elig.order_id,
-                    }
-                    state.confirmation_required = True
-                    CONFIRMATION_REQUESTED.inc()
-                    state.observations.append(obs); _snap(state)
-                    break
+                    # Eligible first-turn requests stop at the confirmation
+                    # gate. A restored, accepted confirmation must continue to
+                    # the action step; gating it again would create a loop and
+                    # silently drop the mutation/action-card result.
+                    if not state.confirmation_received:
+                        state.pending_action = {
+                            "intent":       state.intent,
+                            "order_id":     elig.order_id,
+                            "amount":       elig.amount,
+                            "requirements": elig.requirements,
+                            "order_status": elig.order_status,
+                        }
+                        state.confirmation_context = {
+                            "intent":   state.intent,
+                            "order_id": elig.order_id,
+                        }
+                        state.confirmation_required = True
+                        CONFIRMATION_REQUESTED.inc()
+                        state.observations.append(obs); _snap(state)
+                        break
 
                 _check_replan(state, obs)
 
@@ -256,7 +268,9 @@ def _run_loop_impl(state: OrchestratorState) -> OrchestratorState:
                     ELIGIBILITY_DENIALS.labels(action=elig2.action).inc()
                     logger.warning("Re-validation failed: %s", elig2.reason)
                     state.action_result = {
-                        "action": f"{state.intent}_denied",
+                        "action": _DENIED_ACTIONS.get(
+                            state.intent, f"{state.intent}_denied"
+                        ),
                         "reason": elig2.reason or "Order state changed.",
                     }
                     state.reset_confirmation()

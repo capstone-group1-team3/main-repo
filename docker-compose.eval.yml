@@ -1,0 +1,39 @@
+services:
+  neo4j:
+    ports: !override
+      - "17474:7474"
+      - "17687:7687"
+
+  weaviate:
+    ports: !override
+      - "28080:8080"
+      - "15051:50051"
+
+  backend:
+    image: main-repo-backend:latest
+    env_file: !override
+      - .env.eval
+    environment:
+      EVALUATION_METADATA_ENABLED: "true"
+      CONVERSATION_TTL_SECONDS: "5"
+      FUSIONMIND_EVAL_ISOLATED: "true"
+    ports: !override
+      - "18000:8000"
+
+  frontend:
+    image: main-repo-frontend:latest
+    ports: !override
+      - "13000:3000"
+
+  prometheus:
+    ports: !override
+      - "19090:9090"
+
+  grafana:
+    ports: !override
+      - "13001:3000"
+
+volumes:
+  huggingface_cache:
+    external: true
+    name: main-repo_huggingface_cache

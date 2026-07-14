@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     # Main Groq — response generation ONLY
     groq_api_key: str = Field(default="")
     groq_model:   str = Field(default="openai/gpt-oss-120b")
+    # Policy answers are deliberately deterministic in demo/evaluation runs.
+    # Other response generation keeps its existing temperature.
+    policy_temperature: float = Field(default=0.0)
 
     # Planner Groq — SEPARATE account + key
     planner_groq_api_key:     str   = Field(default="")

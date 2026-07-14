@@ -209,6 +209,17 @@ _CONDITIONAL_RETURN = re.compile(
     re.I,
 )
 
+_GREETING = re.compile(
+    r"^\s*(?:hi|hello|hey|thanks|thank you)"
+    r"(?:\s+(?:there|so much|for your help))?[!.?]*\s*$",
+    re.I,
+)
+
+
+def is_greeting(message: str) -> bool:
+    """Recognize stand-alone social turns before intent/RAG processing."""
+    return bool(_GREETING.fullmatch(message or ""))
+
 
 def _action_option_count(text: str) -> int:
     """Count distinct actions mentioned as possible next steps."""
