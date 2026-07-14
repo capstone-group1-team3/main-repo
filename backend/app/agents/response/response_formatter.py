@@ -12,6 +12,7 @@ from typing import Any
 
 from app.agents.response.response_templates import template_action_result
 from app.llm.llm_client import chat_complete
+from app.config.settings import settings
 
 _SYSTEM = """You are a friendly, precise e-commerce customer support agent.
 Rules:
@@ -42,7 +43,8 @@ def format_grounded_reply(state: Any) -> tuple[str, list[dict[str, str]]]:
     if state.action_result:
         action = state.action_result.get("action", "")
         if action in ("refund_denied", "return_denied", "replacement_denied",
-                      "warranty_denied", "cancel_denied", "no_action_needed"):
+                      "warranty_claim_denied", "warranty_denied",
+                      "cancel_denied", "no_action_needed"):
             # deterministic outcome — no LLM needed
             return template_action_result(state.action_result, state.intent), []
         parts.append(f"ACTION TAKEN:\n{_action_summary(state.action_result)}")
@@ -50,7 +52,12 @@ def format_grounded_reply(state: Any) -> tuple[str, list[dict[str, str]]]:
     parts.append(f"CUSTOMER MESSAGE:\n{state.message}")
     prompt = "\n\n".join(parts)
 
-    answer = chat_complete(prompt, system=_SYSTEM, max_tokens=512, temperature=0.2)
+    temperature = (
+        settings.policy_temperature
+        if state.intent == "policy_question" and state.policy_evidence
+        else 0.2
+    )
+    answer = chat_complete(prompt, system=_SYSTEM, max_tokens=512, temperature=temperature)
     citations, invalid = citation_audit(answer, state.candidate_ids)
     state.invalid_citation_ids = invalid
     return answer, citations
@@ -94,6 +101,15 @@ def citation_audit(
         elif cid not in allowed and cid not in invalid:
             invalid.append(cid)
     return citations, invalid
+
+
+_CITATION_MARKUP_RE = re.compile(r"\[[^\]\n]{0,240}(?:\]|$)")
+
+
+def strip_citation_markup(text: str) -> str:
+    """Remove model-authored citation brackets before UI rendering."""
+    cleaned = _CITATION_MARKUP_RE.sub("", text or "")
+    return re.sub(r"\s+([,.;!?])", r"\1", cleaned)
 
 
 def _extract_citations(text: str, candidate_ids: list[str]) -> list[dict[str, str]]:

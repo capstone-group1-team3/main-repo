@@ -46,9 +46,40 @@ def write_markdown(result: dict[str, Any], path: Path) -> None:
         "Recommendations": "\n".join(f"- {x}" for x in result.get("recommendations", [])) or "No recommendations generated.",
     }
     status_map = result.get("category_status", {})
+    live_sections = {
+        "RAG Retrieval": "rag_retrieval",
+        "Grounding and Citations": "grounding_citations",
+        "Graph Integrity": "graph_integrity",
+        "Orchestrator": "orchestrator",
+        "Confirmation Safety": "confirmation_safety",
+        "Actions": "actions",
+        "Security and Privacy": "security_privacy",
+        "API": "api",
+        "End-to-End Results": "end_to_end_results",
+        "Performance": "performance",
+    }
     for section in SECTIONS:
         content.extend([f"## {section}", ""])
-        text = section_text.get(section)
+        live_key = live_sections.get(section)
+        if live_key and live_key in result:
+            value = result[live_key]
+            if isinstance(value, dict):
+                if "status" in value:
+                    section_status = value["status"]
+                elif "pass_rate" in value:
+                    section_status = "pass" if value["pass_rate"] == 1.0 else "failed"
+                else:
+                    section_status = "completed"
+                text = (
+                    f"Status: `{section_status}`.\n\n"
+                    "<details>\n<summary>Detailed results</summary>\n\n"
+                    f"```json\n{json.dumps(value, indent=2, default=str)}\n```\n\n"
+                    "</details>"
+                )
+            else:
+                text = str(value)
+        else:
+            text = section_text.get(section)
         if text is None:
             key = section.lower().replace(" and ", "_").replace("-", "_").replace(" ", "_")
             status = status_map.get(key, "skipped")
