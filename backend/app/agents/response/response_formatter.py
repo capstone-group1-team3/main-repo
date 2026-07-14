@@ -14,6 +14,11 @@ from app.agents.response.response_templates import template_action_result
 from app.llm.llm_client import chat_complete
 from app.config.settings import settings
 
+
+_CITATION_RE = re.compile(
+    r"\[([^\]]+)\]|【([^】]+)】|［([^］]+)］"
+)
+
 _SYSTEM = """You are a friendly, precise e-commerce customer support agent.
 Rules:
 1. Answer ONLY from the evidence and facts provided — never invent information.
@@ -89,7 +94,10 @@ def _action_summary(result: dict[str, Any]) -> str:
 def citation_audit(
     text: str, candidate_ids: list[str]
 ) -> tuple[list[dict[str, str]], list[str]]:
-    found = re.findall(r"\[([^\]]+)\]", text)
+    found = [
+        next(group for group in match.groups() if group is not None)
+        for match in _CITATION_RE.finditer(text)
+    ]
     seen: set[str] = set()
     citations: list[dict[str, str]] = []
     invalid: list[str] = []

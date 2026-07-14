@@ -25,7 +25,8 @@ DECLINE = "I cannot answer this from the available sources."
 logger = logging.getLogger("app.chat")
 
 _CHUNK_ID_RE = re.compile(
-    r'\[chunk_id[:\s]*[^\]]+\]|\[[^\]]*\.md::[^\]]*\]|\[[^\]]{0,60}::\d+\]',
+    r'[\[【［](?:chunk_id[:\s]*[^\]】］]+|[^\]】］]*\.md::[^\]】］]*|'
+    r'[^\]】］]{0,60}::\d+)[\]】］]',
     re.I,
 )
 

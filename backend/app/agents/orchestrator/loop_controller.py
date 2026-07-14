@@ -86,6 +86,8 @@ def _run_loop_impl(state: OrchestratorState) -> OrchestratorState:
         _handle_confirm(state)
         if state.done:
             return state
+        if state.confirmation_received:
+            _build_confirmed_action_plan(state)
 
     _setup_goals(state)
 
@@ -412,6 +414,24 @@ def _build_plan(state):
     rem = [t for t in seq if t not in state.tools_used and t != "response"]
     if rem:
         state.current_plan = rem; state.plan_valid = True
+
+
+def _build_confirmed_action_plan(state):
+    """Resume a confirmed write without repeating phase-1 eligibility.
+
+    Policy evidence is not persisted across HTTP turns, so intents that need
+    it retrieve it again. The order graph step is intentionally omitted:
+    the action path reloads the customer-owned order and revalidates current
+    eligibility immediately before the mutation.
+    """
+    sequence = TOOL_SEQUENCE.get(state.intent, [])
+    plan = []
+    if "rag_policy" in sequence and state.policy_evidence is None:
+        plan.append("rag_policy")
+    plan.append("action")
+    state.current_plan = plan
+    state.plan_valid = True
+    state.replan_needed = False
 
 
 def _check_replan(state, obs):

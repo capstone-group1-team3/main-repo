@@ -13,6 +13,7 @@ from app.agents.orchestrator.conversation_store import (
     new_conversation_id,
 )
 from app.agents.orchestrator import loop_controller, orchestrator_agent
+from app.agents.orchestrator.state import OrchestratorState
 from app.agents.action.action_evaluator import evaluate_eligibility
 from datetime import date, timedelta
 import pytest
@@ -139,6 +140,82 @@ def test_confirmation_reply_uses_persisted_cancel_context(monkeypatch, reply, co
     assert state.confirmation_received is confirmed
     if not confirmed:
         assert "cancelled" in (state.clarification_needed or "").lower()
+
+
+def test_confirmed_refund_skips_phase_one_order_graph(monkeypatch):
+    """A persisted yes must reach Action Agent, not request confirmation again."""
+    from types import SimpleNamespace
+    from app.agents.rag_policy import rag_policy_agent
+    from app.agents.action import action_agent, action_router
+
+    state = OrchestratorState(
+        request_id="REQ-1",
+        customer_id="C001",
+        conversation_id="CONV-1",
+        message="yes",
+        intent="refund_request",
+        confidence=0.30,
+        entities={"order_id": "ORD001", "issue": "damaged", "action": "refund"},
+        order_data={
+            "order_id": "ORD001",
+            "status": "delivered",
+            "delivered_date": None,
+            "payment_value": 44.63,
+        },
+        pending_action={
+            "intent": "refund_request",
+            "order_id": "ORD001",
+            "amount": 44.63,
+            "order_status": "delivered",
+            "requirements": ["photo_required"],
+        },
+        confirmation_context={"intent": "refund_request", "order_id": "ORD001"},
+        confirmation_required=True,
+    )
+
+    monkeypatch.setattr(
+        rag_policy_agent,
+        "run",
+        lambda **kwargs: {
+            "policy_evidence": "verified refund policy",
+            "sources": ["refund_policy.md"],
+            "candidate_ids": ["refund_policy.md::refund-policy::0"],
+        },
+    )
+
+    def reload_owned_order(current):
+        current.order_data = _order("delivered", days_since_delivery=3, amount=44.63)
+        current.entities["order_id"] = "ORD001"
+        current.ownership_ok = True
+        return True
+
+    monkeypatch.setattr(loop_controller, "_reload_current_owned_order", reload_owned_order)
+    monkeypatch.setattr(
+        loop_controller,
+        "evaluate_eligibility",
+        lambda *args, **kwargs: SimpleNamespace(
+            eligible=True,
+            action="refund_request",
+            reason=None,
+        ),
+    )
+    monkeypatch.setattr(action_router, "get_rules", lambda: _RULES)
+    monkeypatch.setattr(
+        action_agent,
+        "run",
+        lambda current: {
+            "action": "refund_request_created",
+            "request_id": "RET-1",
+            "status": "pending_proof",
+        },
+    )
+
+    result = loop_controller.run_loop(state)
+
+    assert result.confirmation_received is False
+    assert result.action_result["action"] == "refund_request_created"
+    assert result.tools_used == ["rag_policy", "action"]
+    assert "order_graph" not in result.tools_used
 
 
 _RULES = {
